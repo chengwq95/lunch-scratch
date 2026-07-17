@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>午餐刮刮乐</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="4" y="10" width="56" height="44" rx="10" fill="%23fbbf24"/><rect x="10" y="16" width="44" height="32" rx="6" fill="%23fffbeb"/><rect x="14" y="26" width="36" height="12" rx="6" fill="%239e9e9e"/><path d="M16 32 l8 -4 M26 34 l10 -6" stroke="%23fffbeb" stroke-width="3" stroke-linecap="round"/></svg>'>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+    background:
+      radial-gradient(ellipse 70% 45% at 50% -5%, rgba(251,191,36,.18), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 88% 92%, rgba(45,212,191,.10), transparent 60%),
+      radial-gradient(ellipse 45% 32% at 8% 78%, rgba(239,68,68,.13), transparent 60%),
+      linear-gradient(170deg, #1d2b35 0%, #16222c 45%, #0f1a23 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 48px; color: #fff;
+    position: relative;
+  }
+  body::before {   /* 细点纹理 */
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  body::after {    /* 顶部斜向光带 */
+    content: ""; position: fixed; top: -40%; left: -20%;
+    width: 80%; height: 90%; pointer-events: none;
+    background: linear-gradient(115deg, rgba(251,191,36,.07), transparent 65%);
+    transform: rotate(-8deg);
+    filter: blur(2px);
+  }
+  h1, .sub, .card, .btns, .list { position: relative; z-index: 1; }
+  h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  .sub { color: #fcd9a8; font-size: 0.85rem; margin-bottom: 24px; }
+
+  .card {
+    width: min(92vw, 420px);
+    background: linear-gradient(145deg, #fef3c7, #fde68a);
+    border-radius: 18px;
+    padding: 18px 18px 22px;
+    color: #7c2d12;
+    box-shadow: 0 16px 48px rgba(0,0,0,.5), 0 0 80px rgba(251,191,36,.18);
+    position: relative;
+  }
+  .card-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .card-title { font-weight: 800; font-size: 1.05rem; letter-spacing: 1px; }
+  .card-no { font-size: 0.7rem; color: #b45309; font-family: monospace; }
+  .scratch-zone {
+    position: relative; width: 100%; height: 190px;
+    border-radius: 12px; overflow: hidden;
+    border: 3px dashed #d97706;
+  }
+  .prize {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 14px; background: #fffbeb;
+  }
+  .prize .name { font-size: 1.6rem; font-weight: 900; color: #b91c1c; margin-top: 6px; }
+  #foil { position: absolute; inset: 0; cursor: grab; touch-action: none; }
+  .hint {
+    text-align: center; font-size: 0.8rem; color: #92400e; margin-top: 12px;
+  }
+  .btns { margin-top: 22px; display: flex; gap: 12px; }
+  .btns button {
+    padding: 11px 26px; border-radius: 999px; border: none; cursor: pointer;
+    font-size: 0.95rem; font-weight: 700; font-family: inherit;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+  }
+  #newBtn { background: #fbbf24; color: #7c2d12; }
+  #newBtn:active { transform: scale(.96); }
+
+  .list {
+    margin-top: 30px; width: min(92vw, 640px);
+    background: rgba(0,0,0,.22); border-radius: 14px;
+  }
+  .list summary {
+    cursor: pointer; padding: 14px 20px; font-size: 0.95rem; color: #fcd9a8;
+    font-weight: 600; list-style: none; display: flex; align-items: center; gap: 8px;
+  }
+  .list summary::-webkit-details-marker { display: none; }
+  .list summary::after { content: "▾"; margin-left: auto; transition: transform .2s; }
+  .list[open] summary::after { transform: rotate(180deg); }
+  .list-body { padding: 0 20px 18px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.12); border-radius: 999px;
+    padding: 5px 6px 5px 13px; font-size: 0.82rem; line-height: 1;
+  }
+  .chip .rm {
+    background: rgba(0,0,0,.25); border: none; color: #fca5a5;
+    cursor: pointer; font-size: 0.75rem; width: 18px; height: 18px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    padding: 0;
+  }
+  .chip .rm:hover { background: #b91c1c; color: #fff; }
+  .add-row { display: flex; gap: 8px; margin-top: 14px; }
+  .add-row input { flex: 1; padding: 8px 12px; border-radius: 8px; border: none;
+    background: rgba(255,255,255,.15); color: #fff; font-size: 0.9rem; }
+  .add-row input::placeholder { color: #e8c9a0; }
+  .add-row button { padding: 8px 18px; border-radius: 8px; border: none;
+    background: #fbbf24; color: #7c2d12; cursor: pointer; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<h1>午餐刮刮乐</h1>
+<div class="sub">用鼠标/手指刮开涂层</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="card-title">今日午餐大奖</div>
+    <div class="card-no" id="cardNo"></div>
+  </div>
+  <div class="scratch-zone">
+    <div class="prize">
+      <div class="name" id="pName"></div>
+    </div>
+    <canvas id="foil"></canvas>
+  </div>
+  <div class="hint" id="hint">刮开灰色涂层，看看今天吃什么</div>
+</div>
+
+<div class="btns">
+  <button id="newBtn">换一张（重抽）</button>
+</div>
+
+<details class="list">
+  <summary>奖池 · <span id="count"></span> 家（点开管理）</summary>
+  <div class="list-body">
+    <div class="chips" id="items"></div>
+    <div class="add-row">
+      <input id="newName" placeholder="店名，例如：隔壁的经济饭">
+      <button onclick="addItem()">加入</button>
+    </div>
+  </div>
+</details>
+
+<script>
+const DEFAULT_PLACES = [
+  { name: "KFC" },
+  { name: "The Chicken Rice Shop" },
+  { name: "McDonald's" },
+  { name: "Domino's Pizza" },
+  { name: "The Ship" },
+  { name: "Baan Thai" },
+  { name: "Bungkus Kaw Kaw" },
+  { name: "Nasi Lemak Shop" },
+  { name: "Oriental Kopi" },
+  { name: "Hong Ngek" },
+  { name: "Ho Kow" },
+  { name: "Kedai Kopi Lai Foong" },
+  { name: "Soong Kee Beef Noodle" },
+  { name: "Texas Chicken" },
+  { name: "Team Udon" },
+  { name: "Dough Days" },
+  { name: "Three Years Old Cafe" },
+  { name: "Restaurant Sin Hiap Kee" },
+  { name: "Restaurant Yap Hup Kee" },
+  { name: "Dan Ji Dumpling" },
+  { name: "Nomad's" },
+  { name: "Kafei Dian" },
+  { name: "LUCK BROS KOPI" },
+  { name: "Restaurant Bunn Choon" },
+  { name: "Pik Wah Bar & Cafe" },
+  { name: "POKOK" },
+  { name: "Hookie Dookie" },
+  { name: "ParaThai" },
+  { name: "Memang Meow" },
+  { name: "Subway" },
+  { name: "4Fingers Crispy Chicken" },
+  { name: "Aroii Thai" },
+  { name: "Nando's" },
+  { name: "Shihlin Taiwan Street Food" },
+  { name: "Ah Cheng Laksa" },
+  { name: "Sushi Zanmai" },
+  { name: "Dodo Korea" },
+  { name: "Hock Kee Heritage" },
+  { name: "Ali, Muthu & Ah Hock" },
+  { name: "R.A.W Juicery Eatery" },
+  { name: "Ming Kee Porridge" },
+  { name: "Boat Noodle" },
+  { name: "OMI" },
+  { name: "BananaBro" },
+  { name: "MyeongDong Topokki" },
+  { name: "NALE" },
+  { name: "The Manhattan Fish Market" },
+  { name: "GO Noodle House" },
+  { name: "Onde Onde" },
+  { name: "Johnny's Restaurant" },
+  { name: "ZK Restaurant" },
+  { name: "Heritage Kopitiam" },
+  { name: "December Bak Kut Teh" },
+  { name: "新联丰姐妹档" },
+  { name: "Asam Laksa Petaling Street" },
+  { name: "Yorimichi Cafe" },
+  { name: "Restaurant Kim Lian Kee" },
+  { name: "Phang Shu Min Noodles" },
+];
+
+let places = [];
+try {
+  const saved = localStorage.getItem("lunchPlaces");
+  places = saved ? JSON.parse(saved) : [...DEFAULT_PLACES];
+} catch(e) { places = [...DEFAULT_PLACES]; }
+function save() { try { localStorage.setItem("lunchPlaces", JSON.stringify(places)); } catch(e){} }
+
+const foil = document.getElementById("foil");
+const fctx = foil.getContext("2d");
+let revealed = false;
+let scratching = false;
+
+function pickPrize() {
+  const p = places[Math.floor(Math.random() * places.length)];
+  document.getElementById("pName").textContent = p.name;
+  document.getElementById("cardNo").textContent =
+    "NO. " + Date.now().toString().slice(-6);
+}
+
+function paintFoil() {
+  const zone = foil.parentElement;
+  foil.width = zone.clientWidth * 2;
+  foil.height = zone.clientHeight * 2;
+  foil.style.width = "100%";
+  foil.style.height = "100%";
+  fctx.scale(1,1);
+  // silver base
+  const g = fctx.createLinearGradient(0, 0, foil.width, foil.height);
+  g.addColorStop(0, "#c0c0c0"); g.addColorStop(.5, "#9e9e9e"); g.addColorStop(1, "#bdbdbd");
+  fctx.globalCompositeOperation = "source-over";
+  fctx.fillStyle = g;
+  fctx.fillRect(0, 0, foil.width, foil.height);
+  // texture text
+  fctx.fillStyle = "rgba(255,255,255,.35)";
+  fctx.font = "bold 34px sans-serif";
+  const txt = "刮我 GOOD LUCK";
+  const step = fctx.measureText(txt).width + 60;   // 文字宽度 + 间距，避免重叠
+  let rowIdx = 0;
+  for (let y = 50; y < foil.height; y += 90) {
+    const offset = (rowIdx++ % 2) * (step / 2);    // 隔行错开
+    for (let x = 20 - offset; x < foil.width; x += step)
+      fctx.fillText(txt, x, y);
+  }
+  foil.style.display = "block";
+  foil.style.opacity = "1";
+  revealed = false;
+  document.getElementById("hint").textContent = "👆 刮开灰色涂层，看看今天吃什么";
+}
+
+function scratchAt(e) {
+  const rect = foil.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (foil.width / rect.width);
+  const y = (e.clientY - rect.top) * (foil.height / rect.height);
+  fctx.globalCompositeOperation = "destination-out";
+  fctx.beginPath();
+  fctx.arc(x, y, 42, 0, Math.PI * 2);
+  fctx.fill();
+  checkReveal();
+}
+
+let checkCount = 0;
+function checkReveal() {
+  if (revealed) return;
+  if (++checkCount % 12 !== 0) return;   // throttle
+  const data = fctx.getImageData(0, 0, foil.width, foil.height).data;
+  let clear = 0, total = data.length / 4;
+  for (let i = 3; i < data.length; i += 16) if (data[i] === 0) clear++;
+  if (clear / (total / 4) > 0.5) reveal();
+}
+
+function reveal() {
+  revealed = true;
+  foil.style.transition = "opacity .6s";
+  foil.style.opacity = "0";
+  setTimeout(() => foil.style.display = "none", 600);
+  document.getElementById("hint").textContent = "中奖了！今天就吃这家，不许反悔！";
+  confetti();
+}
+
+foil.addEventListener("pointerdown", e => { scratching = true; foil.setPointerCapture(e.pointerId); scratchAt(e); });
+foil.addEventListener("pointermove", e => { if (scratching) scratchAt(e); });
+foil.addEventListener("pointerup", () => scratching = false);
+
+document.getElementById("newBtn").addEventListener("click", newCard);
+function newCard() { pickPrize(); paintFoil(); }
+
+function confetti() {
+  const colors = ["#fbbf24","#ef4444","#22c55e","#3b82f6","#eab308"];
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement("div");
+    const s = 6 + Math.random() * 8;
+    el.style.cssText = `position:fixed;left:${Math.random()*100}vw;top:-30px;width:${s}px;height:${s}px;border-radius:${Math.random()>.5?"50%":"2px"};background:${colors[i % colors.length]};z-index:99;pointer-events:none;transition:transform ${2+Math.random()*2}s linear,opacity 3s;`;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => {
+      el.style.transform = `translateY(${window.innerHeight+60}px) rotate(${Math.random()*720-360}deg)`;
+      el.style.opacity = "0";
+    });
+    setTimeout(() => el.remove(), 4200);
+  }
+}
+
+function renderList() {
+  const box = document.getElementById("items");
+  box.innerHTML = "";
+  places.forEach((p, i) => {
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.innerHTML = `${p.name}<button class="rm" title="移除" onclick="removeItem(${i})">✕</button>`;
+    box.appendChild(chip);
+  });
+  document.getElementById("count").textContent = places.length;
+}
+function addItem() {
+  const inp = document.getElementById("newName");
+  const name = inp.value.trim();
+  if (!name) return;
+  places.push({ name });
+  inp.value = "";
+  save(); renderList();
+}
+function removeItem(i) { places.splice(i, 1); save(); renderList(); }
+document.getElementById("newName").addEventListener("keydown", e => { if (e.key === "Enter") addItem(); });
+
+window.addEventListener("resize", () => { if (!revealed) paintFoil(); });
+
+pickPrize();
+paintFoil();
+renderList();
+</script>
+</body>
+</html>
