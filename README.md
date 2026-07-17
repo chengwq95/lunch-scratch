@@ -2,7 +2,8 @@
 
 A small scratch-card lunch picker for colleagues around Kuala Lumpur.
 
-**Live site:** https://lunch.makan-lunch.workers.dev
+**Live site:** https://lunch.makan-lunch.workers.dev  
+**GitHub Pages:** https://chengwq95.github.io/lunch-scratch/
 
 ## What it does
 
@@ -12,7 +13,7 @@ Lunch Scratch makes the daily “what should we eat?” decision quick and fun:
 - Reveals the choice with a scratch-card interaction that works with a mouse or finger.
 - Lets the group redraw when the result does not suit the day.
 - Lets anyone add or remove restaurants from the pool directly in the page.
-- Includes 14 nearby lunch options by default.
+- Starts with a prefilled pool of nearby lunch options.
 
 ## How to use
 
@@ -39,19 +40,11 @@ This is a dependency-free static website.
 
 No installation, build command, or server is required.
 
-## Publish with GitHub Pages
+## GitHub Pages
 
-This repository is ready for GitHub Pages because the entry file is named `index.html`.
+This repository is published from the `main` branch and the root folder. Because the entry file is named `index.html`, GitHub Pages serves it automatically:
 
-1. Open **Settings** in this repository.
-2. Choose **Pages**.
-3. Under **Build and deployment**, select **Deploy from a branch**.
-4. Choose the `main` branch and the `/ (root)` folder.
-5. Save the settings.
-
-GitHub Pages will publish the site at:
-
-`https://chengwq95.github.io/lunch-scratch/`
+https://chengwq95.github.io/lunch-scratch/
 
 ## Project files
 
