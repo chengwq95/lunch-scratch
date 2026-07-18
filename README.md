@@ -2,7 +2,7 @@
 
 A small scratch-card lunch picker for colleagues around Kuala Lumpur.
 
-**Live site:** https://lunch.makan-lunch.workers.dev  
+**Live site:** [https://lunch.makan-lunch.workers.dev](https://lunch-scratch.pages.dev/)  
 **GitHub Pages:** https://chengwq95.github.io/lunch-scratch/
 
 ## What it does
