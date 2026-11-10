@@ -1,5 +1,7 @@
 # Lunch Scratch
 
+![Lunch Scratch](docs/screenshot.jpg)
+
 A small scratch-card lunch picker for colleagues around Kuala Lumpur.
 
 **Live site:** https://lunch-scratch.pages.dev/
@@ -55,3 +57,7 @@ https://chengwq95.github.io/lunch-scratch/
 ## Notes
 
 Restaurant availability, opening hours, and menus can change. Confirm the final choice with the restaurant when needed.
+
+## License
+
+[MIT](LICENSE)
